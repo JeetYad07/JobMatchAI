@@ -1,45 +1,64 @@
-# Auto-Apply
+# JobMatch AI — Personal Job Matching & Career Navigator 🚀
 
-Job-application automation for **Naukri**, **Wellfound** and **Indeed**, plus an
-hourly **Naukri profile refresh** that keeps your profile at the top of recruiter
-searches. Everything runs locally in Chrome via Playwright, and every personal
-detail lives in `.env` — nothing is hard-coded in the scripts.
+> Automated, high-precision job application copilot with smart salary targeting ($\ge 18\text{ LPA}$), 100% criteria fulfillment matching, interactive Chrome Extension (Side Panel), autonomous chatbot handling, and real-time email digest notifications.
 
-| What | Entry point |
-|---|---|
-| Keep the Naukri profile "recently updated" (hourly) | `node naukri-profile-refresh.js` |
-| Auto-apply on Naukri | `node auto-apply-runner.js naukri` |
-| Auto-apply on Wellfound | `node auto-apply-runner.js wellfound` |
-| Auto-apply on Indeed | `node auto-apply-runner.js indeed` |
-
-The apply runners start in **DRY RUN** mode — they fill everything but never press
-Send — so you can watch them work before adding `--live`.
+[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-blue)](https://github.com/JeetYad07/JobMatchAI)
+[![Chrome Extension](https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-success)](https://github.com/JeetYad07/JobMatchAI)
+[![Playwright](https://img.shields.io/badge/Engine-Playwright%20Stealth-orange)](https://github.com/JeetYad07/JobMatchAI)
+[![License](https://img.shields.io/badge/License-MIT-green)](https://github.com/JeetYad07/JobMatchAI)
 
 ---
 
-# Part 1 — Naukri profile refresh
+## 🌟 Overview
 
-Keeps your Naukri profile "recently updated" — recruiters see fresh profiles first.
-Every run it cycles trailing dots on your **resume headline** ("" -> "." -> ".." -> ""),
-which counts as a profile update on Naukri, and re-uploads your resume PDF whenever
-the profile's "Uploaded on" date is not today. Schedule it hourly and forget about it.
+**JobMatch AI** transforms the tedious, manual job search process into an automated, highly-targeted workflow. Operating across **Naukri**, **Wellfound**, and **Indeed**, it filters for premium packages, screens for 100% criteria alignment, completes recruiter screening questionnaires, and delivers instant email digests after every session.
 
-- Logs in automatically with your **Google account** (session is saved after the first login).
-- Runs in an off-screen Chrome window (Naukri blocks headless browsers).
-- Verifies the save actually stuck on the server before reporting success.
-- Re-uploads the resume daily; pass `--force-cv` to re-upload even when the date is already today.
-- All personal data lives in `.env` — nothing sensitive is in the code.
+### 🎯 Key Highlights
+* **Chrome Extension (Manifest V3)**: Glassmorphic Side Panel UI featuring real-time application logs, active session metrics, daily application quotas, and targeting presets.
+* **Smart Search Targeting Hub**: 1-Click **"✨ Fill from Resume"** auto-configures verified criteria (e.g., 4 yrs exp, B.Tech NIT Jalandhar, $\ge 18\text{ LPA}$, Direct Employer, Last 7 Days).
+* **Multi-Location Search Engine**: Canonical routing and verified internal GIDs for single and multi-city queries (`Bengaluru`, `Pune`, `Hyderabad`, `Delhi / NCR`, `Remote`).
+* **Autonomous Chatbot Solver**: Intelligently handles multi-turn screening drawers, radio chips, numeric experience inputs, and dropdowns.
+* **Real-time Email Digests**: Dispatches detailed HTML summary reports with clickable job links, company names, verified salaries, and match badges via a background bridge daemon.
+* **Hourly Profile Refresh**: Rotates resume headline updates and daily CV re-uploads to keep your candidate profile at the top of recruiter searches.
 
-## Requirements
+---
 
-- Windows 10/11 (uses Task Scheduler for the hourly run)
-- [Node.js](https://nodejs.org/) 18+
-- Google Chrome installed
-- A Naukri account that signs in with Google
+## 📐 Architecture & Components
 
-## Setup
+```
+JobMatchAI/
+├── extension/                     # Chrome Extension (Manifest V3)
+│   ├── manifest.json              # Extension manifest & permissions
+│   ├── sidepanel/                 # Glassmorphic Side Panel UI
+│   │   ├── sidepanel.html         # Controls, filters, logs & metrics
+│   │   ├── sidepanel.css          # Modern dark-mode styling
+│   │   └── sidepanel.js           # Filter state, targeting URL builder & event bus
+│   ├── background/
+│   │   └── service-worker.js      # Auto-pilot navigation & script injection
+│   ├── content/
+│   │   └── naukri-content.js      # Live card scanner, chatbot solver & apply runner
+│   └── icons/                     # Extension branding icons
+├── email-notifier.js              # HTML digest generator & local HTTP bridge server
+├── auto-apply-runner.js           # Stealth Playwright runner (Naukri, Wellfound, Indeed)
+├── naukri-profile-refresh.js      # Hourly recruiter search booster
+├── config.js                      # Dynamic career duration calculator & .env parser
+├── .env.example                   # Environment configuration template
+├── ARCHITECTURE.md                # In-depth architectural blueprint
+├── PRD.md                         # Product requirements & user journeys
+├── ROADMAP.md                     # Feature roadmap & upcoming milestones
+└── fixedNotes.md                  # Comprehensive technical bug fix log
+```
 
-**1. Clone and install:**
+---
+
+## ⚡ Quickstart
+
+### Prerequisites
+* [Node.js](https://nodejs.org/) (v18.0 or newer)
+* Google Chrome installed
+* Git
+
+### 1. Clone & Install
 
 ```bash
 git clone https://github.com/JeetYad07/JobMatchAI.git
@@ -47,237 +66,132 @@ cd JobMatchAI
 npm install
 ```
 
-**2. Create your `.env`:**
+### 2. Configure Credentials (`.env`)
 
-```powershell
-copy .env.example .env
+Copy the template and fill in your details:
+
+```bash
+cp .env.example .env
 ```
 
-Open `.env` and fill in at least:
+Key environment variables:
 
-| Variable | What it is |
-|---|---|
-| `GOOGLE_EMAIL` | The Google account your Naukri profile uses |
-| `GOOGLE_PASSWORD` | Its password (used only for the automated sign-in) |
-| `NAUKRI_PROFILE_URL` | Your Naukri profile page — the default `https://www.naukri.com/mnjuser/profile` works for every account |
-| `RESUME_FILE` | Resume PDF re-uploaded to the profile daily — filename relative to this folder, or an absolute path |
+| Variable | Description | Example |
+|---|---|---|
+| `CAREER_START_DATE` | Your career commencement date | `2022-06-01` |
+| `MIN_SALARY_LPA` | Minimum compensation threshold | `18` |
+| `GMAIL_USER` | Gmail address for sending digests | `your.email@gmail.com` |
+| `GMAIL_APP_PASSWORD` | Google 16-character App Password | `xxxx xxxx xxxx xxxx` |
+| `DIGEST_RECIPIENT` | Recipient email for session digests | `your.email@gmail.com` |
+| `GOOGLE_EMAIL` | Account used for Naukri sign-in | `your.email@gmail.com` |
+| `RESUME_FILE` | Path to your resume PDF | `resume.pdf` |
 
-`.env` is git-ignored, so your credentials never get pushed.
-
-**3. First login (one time, visible browser):**
-
-```powershell
-node naukri-profile-refresh.js login
-```
-
-A Chrome window opens and signs in with Google. If Google asks for 2-step
-verification, approve it once — the session is saved to `.naukri-chrome-profile/`
-and reused by every later run.
-
-**4. Test a silent run:**
-
-```powershell
-node naukri-profile-refresh.js
-```
-
-Check `naukri-refresh.log` — you should see a line like:
-
-```
-[27/7/2026, 1:05:12 pm] OK: headline dot 1 added (verified), cv up-to-date → "AI Full Stack Developer | ..."
-```
-
-## Run it hourly (Task Scheduler)
-
-Run this once in PowerShell (adjust the path to where you cloned the repo):
-
-```powershell
-$repo = "C:\path\to\auto-apply"
-$action  = New-ScheduledTaskAction -Execute "node.exe" -Argument "`"$repo\naukri-profile-refresh.js`"" -WorkingDirectory $repo
-$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Hours 1)
-Register-ScheduledTask -TaskName "NaukriProfileRefresh" -Action $action -Trigger $trigger -Settings (New-ScheduledTaskSettingsSet -StartWhenAvailable)
-```
-
-That's it — the script now refreshes your profile every hour while your PC is on.
-
-Useful commands:
-
-```powershell
-Get-ScheduledTask NaukriProfileRefresh            # check status
-Start-ScheduledTask NaukriProfileRefresh          # run now
-Disable-ScheduledTask NaukriProfileRefresh        # pause
-Enable-ScheduledTask NaukriProfileRefresh         # resume
-Unregister-ScheduledTask NaukriProfileRefresh     # remove
-```
-
-## Troubleshooting
-
-| Symptom | Fix |
-|---|---|
-| `Google login did not complete` in the log | Run `node naukri-profile-refresh.js login` and approve the 2-step verification prompt once manually. |
-| `save did not stick` in the log | Naukri changed its headline editor — open an issue. |
-| Any other error | Check `naukri-refresh-error-*.png` screenshots in the repo folder — they show exactly what the browser saw when it failed. |
-| Want to start fresh | Delete the `.naukri-chrome-profile/` folder and run the `login` step again. |
-
-## Files
-
-| File | Purpose |
-|---|---|
-| `naukri-profile-refresh.js` | The refresh script |
-| `config.js` | Loads `.env` (no dependencies) |
-| `.env.example` | Template — copy to `.env` and fill in |
-| `naukri-refresh.log` | Run history (git-ignored) |
-| `.naukri-chrome-profile/` | Saved Chrome session (git-ignored) |
-
-## Disclaimer
-
-Automating your own profile may be against Naukri's Terms of Service. It only
-edits your own headline at a slow, human-like rate, but use at your own risk.
+> 🔒 **Security Notice:** `.env` is strictly ignored by `.gitignore` and is never committed to GitHub.
 
 ---
 
-# Part 2 — Auto-apply (Wellfound / Indeed / Naukri)
+## 🧩 Installing the Chrome Extension
 
-Automatically applies to matching jobs on [Wellfound](https://wellfound.com) (ex-AngelList Talent).
-A Playwright runner opens Chrome with your saved Wellfound session, injects the apply
-script into the `/jobs` feed, and the script:
+1. Open Google Chrome and navigate to `chrome://extensions/`.
+2. Toggle **Developer mode** (top-right corner).
+3. Click **Load unpacked** (top-left corner).
+4. Select the `extension/` folder inside the `JobMatchAI` workspace.
+5. Click the extension puzzle icon in Chrome and pin **JobMatch AI — Personal Job Navigator**.
+6. Click the extension icon to open the glassmorphic **Side Panel**.
 
-- scrolls the infinite feed and picks jobs whose **title matches your keywords** (and skips a blocklist),
-- opens each job's "Apply to *Company*" panel,
-- fills the **cover letter** (personalized per company/role from your `.env` data),
-- answers extra questions from a built-in Q&A bank (optionally falls back to **Gemini** for unknown questions),
-- handles location prompts ("I can relocate to…"), dropdowns, radios and checkboxes,
-- submits, logs every application to `applications.csv`, and respects a **50/day cap**.
+---
 
-It starts in **DRY RUN** mode by default — it fills everything but never presses Send —
-so you can watch it work before going live.
+## 🚀 Running the Automation
 
-## Requirements
+### Mode A: Chrome Extension (Interactive & Visual)
 
-- Windows 10/11 (Task Scheduler used for automatic daily runs — manual runs work anywhere Node does)
-- [Node.js](https://nodejs.org/) 18+
-- Google Chrome
-- A Wellfound account with your profile + resume completed
+1. Start the Email Bridge Server daemon in terminal:
+   ```bash
+   node email-notifier.js --server
+   ```
+2. Open the JobMatch AI Side Panel in Chrome.
+3. Click **"✨ Fill from Resume"** to populate pre-verified filters.
+4. Click **"⚡ Apply Filters to Page"** to navigate the active tab to the targeted search.
+5. Click **"▶ Start Auto-Apply"**. Sit back and watch the live feed stream actions in real-time.
 
-## Setup
+### Mode B: Headless / Stealth Terminal Runner
 
-**1. Clone and install:**
+Test applications in dry-run mode (fills forms, answers questionnaires, but does not submit):
 
-```powershell
-git clone https://github.com/JeetYad07/JobMatchAI.git
-cd wellfound_autoApply
-npm install
+```bash
+# Initial one-time login
+node auto-apply-runner.js naukri login
+
+# Dry-run
+node auto-apply-runner.js naukri
+
+# Live application run
+node auto-apply-runner.js naukri --live
 ```
 
-**2. Create your `.env`:**
+---
 
-```powershell
-copy .env.example .env
+## 🔄 Hourly Profile Refresher
+
+Keep your candidate profile tagged as *"Recently Active"* on Naukri:
+
+```bash
+# Manual test run
+node naukri-profile-refresh.js
+
+# Schedule on Windows (Task Scheduler)
+powershell -ExecutionPolicy Bypass -File setup-schedule.ps1
 ```
 
-Open `.env` and fill in your details — name, contact, skills, highlights, salary
-expectations, links, etc. Every application answer and cover letter is built from
-these values; **nothing personal is hard-coded in the scripts**. `.env` is
-git-ignored, so your data never gets pushed.
+---
 
-Optional: set `GEMINI_KEY` to a free Google Gemini API key — any application
-question the built-in answer bank can't match gets answered by Gemini using your CV.
+## 📊 Application Rules & Targeting Engine
 
-**3. Log in to Wellfound (one time, visible browser):**
+| Filter | Settings Supported | Behavior |
+|---|---|---|
+| **Salary Package** | $\ge 18\text{ LPA}$ (Customizable) | Rejects undisclosed / low-bracket jobs; checks 15-25, 25-50, 50-75 LPA brackets |
+| **Locations** | Bengaluru, Pune, Hyderabad, Delhi / NCR, Remote | Uses canonical URL slugs or multi-city `cityTypeGid` routing with expanded drawer support |
+| **Work Mode** | Hybrid + Remote, Remote Only, Hybrid Only, Office | Maps to verified `wfhType` parameters (2 & 3) |
+| **Freshness** | Last 7 Days, Last 3 Days, Last 24 Hours | Restricts searches to recent postings for higher recruiter callback rates |
+| **Posted By** | Direct Employers Only | Filters out third-party placement agencies (`postedBy=1`) |
+| **Education** | B.Tech / B.E. (NIT Jalandhar) | Restricts search to verified engineering qualifications (`ugTypeGid=12`) |
+| **Department** | Engineering - Software & QA | Targets core software development and architecture openings |
 
-```powershell
-node auto-apply-runner.js wellfound login
+---
+
+## 📬 Automated Email Digests
+
+At the conclusion of each application session, JobMatch AI compiles a responsive HTML digest and sends it via Gmail SMTP.
+
+Each entry includes:
+* Position Title & Company Name
+* Offered Salary Bracket ($\ge 18\text{ LPA}$)
+* Match Score Status & Required Skills Met
+* Submission Timestamp
+* Direct **"View Job on Naukri →"** verification link
+
+Preview the template locally:
+```bash
+open preview-email.html
 ```
 
-A Chrome window opens — log in to wellfound.com, then close the window.
-The session is saved to `.wellfound-chrome-profile/` and reused by every later run.
+---
 
-**4. Dry run (watch it, nothing is submitted):**
+## 🛠 Documentation & Reference Guides
 
-```powershell
-node auto-apply-runner.js wellfound
-```
+* **[ARCHITECTURE.md](ARCHITECTURE.md)**: Deep dive into the extension architecture, messaging buses, and state synchronization.
+* **[PRD.md](PRD.md)**: Complete product requirements document and user personas.
+* **[ROADMAP.md](ROADMAP.md)**: Upcoming milestones (AI interview copilot, cross-site synchronization).
+* **[fixedNotes.md](fixedNotes.md)**: 17 detailed technical post-mortems documenting DOM investigations and fixes.
 
-Chrome opens on the jobs feed, and you'll see forms being filled. The log
-(`auto-apply-wellfound.log`) shows lines like:
+---
 
-```
-✍ cover letter filled
-🔍 DRY_RUN — would click: Apply
-==> 1/50 this run (1/50 today)
-```
+## ⚠️ Disclaimer
 
-**5. Go live:**
+JobMatch AI is built for personal career navigation and job search assistance. Please review the terms of service of any job portal you automate. Delays and interaction cadences are engineered with respectful human-like pacing. Use responsibly.
 
-```powershell
-node auto-apply-runner.js wellfound --live
-```
+---
 
-Same flow, but Send is actually clicked. Each application is appended to
-`applications.csv` (Date, Site, Role, Company, Salary, Skills, Job Link, JD) and
-counted in `apply-state-wellfound.json` toward the daily cap.
+## 📄 License
 
-## Customizing which jobs it applies to
-
-Edit the `CONFIG` block at the top of `wellfound-auto-apply.js`:
-
-| Setting | What it does |
-|---|---|
-| `TITLE_KEYWORDS` | Apply only when the job title contains one of these (case-insensitive) |
-| `TITLE_BLOCKLIST` | Skip when the title contains any of these (senior, manager, .net, …) |
-| `MAX_APPLICATIONS` | Per-run cap (the runner overrides it with the daily cap remaining) |
-| `MIN_DELAY_MS` / `MAX_DELAY_MS` | Wait between applications (default 60–150 s — human pace; going faster trips Wellfound's bot-check) |
-
-**Locations:** the script applies to whatever your Wellfound search filters show on
-`wellfound.com/jobs` — set your filters (remote / worldwide / a city) once in the
-browser and it follows them. Jobs in other locations are still handled: when
-Wellfound asks, it picks "I can relocate to…" and selects the job's offered location.
-Jobs the company has location-blocked are detected and skipped. Jobs posted more than
-14 days ago are skipped.
-
-## Run it automatically every day (Task Scheduler)
-
-```powershell
-$repo = "C:\path\to\wellfound_autoApply"
-$action  = New-ScheduledTaskAction -Execute "node.exe" -Argument "`"$repo\auto-apply-runner.js`" wellfound --live" -WorkingDirectory $repo
-$trigger = New-ScheduledTaskTrigger -Daily -At 12:30
-Register-ScheduledTask -TaskName "WellfoundAutoApply" -Action $action -Trigger $trigger -Settings (New-ScheduledTaskSettingsSet -StartWhenAvailable)
-```
-
-Useful commands:
-
-```powershell
-Start-ScheduledTask WellfoundAutoApply       # run now
-Disable-ScheduledTask WellfoundAutoApply     # pause
-Enable-ScheduledTask WellfoundAutoApply      # resume
-Unregister-ScheduledTask WellfoundAutoApply  # remove
-```
-
-## Troubleshooting
-
-| Symptom | Fix |
-|---|---|
-| `0 job cards found` on every page | Wellfound is showing a DataDome "Verification Required" captcha. Run `node auto-apply-runner.js wellfound login`, solve the slider once manually, close the window, re-run. |
-| Session logged out | Delete `.wellfound-chrome-profile/` and repeat the `login` step. |
-| `no apply modal found — skipping` | That job opened as a full page instead of the apply panel — it's skipped safely and not counted. |
-| `no Send button found` on many jobs in a row | Usually the bot-check again (see first row). Keep delays at 60 s+. |
-| Want today's counter reset | Delete `apply-state-wellfound.json`. |
-
-## Files
-
-| File | Purpose |
-|---|---|
-| `auto-apply-runner.js` | Playwright wrapper: opens Chrome, injects the site script, logs to CSV, enforces the daily cap |
-| `wellfound-auto-apply.js` | The Wellfound apply logic (also pasteable directly into the DevTools console) |
-| `config.js` | Tiny no-dependency `.env` loader |
-| `.env.example` | Template — copy to `.env` and fill in |
-| `applications.csv` | Every submitted application (git-ignored) |
-| `apply-state-wellfound.json` | Today's application count for the 50/day cap (git-ignored) |
-| `auto-apply-wellfound.log` | Run history (git-ignored) |
-| `.wellfound-chrome-profile/` | Saved Chrome session (git-ignored) |
-
-## Disclaimer
-
-Auto-applying may violate Wellfound's Terms of Service and can get an
-account rate-limited or banned. The delays are deliberately human-like and everything
-runs on your own machine with your own account — use at your own risk, and review
-the dry run before going live.
+Distributed under the MIT License. See `LICENSE` for more information.
