@@ -1,0 +1,23 @@
+{
+  "name": "auto-apply",
+  "version": "1.0.0",
+  "main": "naukri-profile-refresh.js",
+  "scripts": {
+    "refresh": "node naukri-profile-refresh.js",
+    "login": "node naukri-profile-refresh.js login"
+  },
+  "keywords": [
+    "naukri",
+    "playwright",
+    "automation"
+  ],
+  "author": "Jeet Bahadur",
+  "license": "ISC",
+  "description": "Keeps your Naukri profile recently-updated by toggling the resume headline on a schedule",
+  "dependencies": {
+    "nodemailer": "^10.1.2",
+    "playwright-core": "^1.61.1",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}

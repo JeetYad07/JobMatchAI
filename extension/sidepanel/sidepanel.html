@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JobMatch AI Panel</title>
+  <link rel="stylesheet" href="sidepanel.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="panel-container">
+    <!-- Header -->
+    <header class="panel-header">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">JobMatch AI</div>
+          <div class="brand-subtitle">Personal Job Navigator</div>
+        </div>
+      </div>
+      <div class="status-badge" id="appStatusBadge">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Ready</span>
+      </div>
+    </header>
+
+    <!-- Metrics Banner -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Today's Applied</div>
+        <div class="metric-value" id="metricApplied">0 <span class="metric-max">/ 20</span></div>
+      </div>
+      <div class="metric-card highlight">
+        <div class="metric-label">Min Package</div>
+        <div class="metric-value">≥ 18 <span class="metric-unit">LPA</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Match Score</div>
+        <div class="metric-value text-accent">100%</div>
+      </div>
+    </section>
+
+    <!-- Main Action Button -->
+    <section class="action-section">
+      <button id="btnToggleApply" class="btn-primary">
+        <span class="btn-icon" id="btnIcon">▶</span>
+        <span id="btnText">Start Auto-Apply</span>
+      </button>
+      <button id="btnSendDigest" class="btn-secondary">
+        <span>✉ Send Digest to Email</span>
+      </button>
+      <div class="quick-tip" id="quickTip">
+        Tip: Open any Naukri developer search to begin automation.
+      </div>
+    </section>
+
+    <!-- Targeting & Search Filters -->
+    <section class="card targeting-card">
+      <div class="section-title">
+        <span>Targeting & Search Filters</span>
+        <button id="btnAutoFillResume" class="btn-chip-action" title="Populate all filters directly from your verified CV">✨ Fill from Resume</button>
+      </div>
+
+      <div class="form-row">
+        <label for="filterRole">Target Role</label>
+        <select id="filterRole" class="form-select">
+          <option value="full-stack-developer" selected>Full Stack Developer</option>
+          <option value="software-engineer">Software Engineer</option>
+          <option value="react-developer">React / Frontend Dev</option>
+          <option value="node-js-developer">Node.js / Backend Dev</option>
+          <option value="ai-engineer">AI / GenAI Engineer</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="filterExperience">Experience</label>
+        <div class="input-with-suffix">
+          <input type="number" id="filterExperience" value="4" min="0" max="30">
+          <span class="suffix">years</span>
+        </div>
+      </div>
+
+      <!-- Locations -->
+      <div class="filter-block">
+        <div class="filter-label">Locations</div>
+        <div class="chip-container" id="locationChips">
+          <span class="chip-pill active" data-loc="bengaluru">Bengaluru</span>
+          <span class="chip-pill active" data-loc="remote">Remote</span>
+          <span class="chip-pill" data-loc="pune">Pune</span>
+          <span class="chip-pill" data-loc="hyderabad">Hyderabad</span>
+          <span class="chip-pill" data-loc="delhi">Delhi / NCR</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="filterWorkMode">Work Mode</label>
+        <select id="filterWorkMode" class="form-select">
+          <option value="hybrid_remote" selected>Hybrid + Remote</option>
+          <option value="remote_only">Remote Only</option>
+          <option value="hybrid_only">Hybrid Only</option>
+          <option value="office">Work from Office</option>
+          <option value="any">Any Work Mode</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="filterFreshness">Freshness</label>
+        <select id="filterFreshness" class="form-select">
+          <option value="7" selected>Last 7 Days (Optimal)</option>
+          <option value="3">Last 3 Days (High Callback)</option>
+          <option value="1">Last 24 Hours (Fresh)</option>
+          <option value="15">Last 15 Days</option>
+          <option value="any">Any Time</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="filterPostedBy">Posted By</label>
+        <select id="filterPostedBy" class="form-select">
+          <option value="direct" selected>Direct Employer (No Agencies)</option>
+          <option value="all">All (Companies + Agencies)</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="filterDepartment">Department</label>
+        <select id="filterDepartment" class="form-select">
+          <option value="engineering" selected>Engineering - Software & QA</option>
+          <option value="data">Data Science & Analytics</option>
+          <option value="product">Product Management</option>
+          <option value="any">Any Department</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="filterCompanyType">Company Type</label>
+        <select id="filterCompanyType" class="form-select">
+          <option value="mnc_startup" selected>MNCs & Startups</option>
+          <option value="mnc">Foreign MNC & Corporate</option>
+          <option value="startup">Startups & Unicorns</option>
+          <option value="all">All Company Types</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="filterEducation">Education</label>
+        <select id="filterEducation" class="form-select">
+          <option value="btech" selected>B.Tech / B.E. (NIT Jalandhar)</option>
+          <option value="any">Any Graduate</option>
+        </select>
+      </div>
+
+      <div class="form-toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-title">Auto-Pilot Navigation</span>
+          <span class="toggle-desc">Auto-open this filtered search before applying</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggleAutoNavigate" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 10px;">
+        <button id="btnOpenSearch" class="btn-secondary" style="flex: 1;">
+          <span>🔍 Open Search Tab</span>
+        </button>
+        <button id="btnSyncFilters" class="btn-secondary" style="flex: 1; border-color: rgba(16, 185, 129, 0.35); color: #34d399;">
+          <span>⚡ Apply Filters to Page</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Filters & Configuration -->
+    <section class="card config-card">
+      <div class="section-title">
+        <span>Application Rules</span>
+        <span class="badge-pill">Quality First</span>
+      </div>
+
+      <div class="form-row">
+        <label for="inputMinSalary">Min Salary Package</label>
+        <div class="input-with-suffix">
+          <input type="number" id="inputMinSalary" value="18" min="0" max="100">
+          <span class="suffix">LPA</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="inputMaxTarget">Target Applications</label>
+        <div class="input-with-suffix">
+          <input type="number" id="inputMaxTarget" value="10" min="1" max="20">
+          <span class="suffix">jobs</span>
+        </div>
+      </div>
+
+      <div class="form-toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-title">Strict 100% Criteria Match</span>
+          <span class="toggle-desc">Skip jobs with unmet skills or experience badges</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggleCriteriaMatch" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="form-toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-title">Auto-Skip Undisclosed CTC</span>
+          <span class="toggle-desc">Only apply when compensation is explicitly disclosed</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggleSkipUndisclosed" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Candidate Profile Preview -->
+    <section class="card profile-card">
+      <div class="section-title">
+        <span>Candidate Profile</span>
+        <span class="profile-verified">● Verified</span>
+      </div>
+      <div class="profile-details">
+        <div class="profile-name" id="profileName">Jeet Bahadur</div>
+        <div class="profile-role" id="profileRole">Software Engineer &bull; MSG Global</div>
+        <div class="profile-meta">
+          <span>💼 4.3 Yrs Exp</span> &bull; 
+          <span>📍 Bengaluru</span> &bull; 
+          <span>🎓 B.Tech NITJ</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live Activity Log -->
+    <section class="card log-card">
+      <div class="section-title">
+        <span>Live Automation Feed</span>
+        <button id="btnClearLogs" class="btn-text">Clear</button>
+      </div>
+      <div class="log-stream" id="logStream">
+        <div class="log-entry info">
+          <span class="log-time">00:00</span>
+          <span class="log-msg">JobMatch AI extension initialized. Waiting for trigger.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="panel-footer">
+      <a href="https://www.naukri.com/full-stack-developer-jobs?experience=4&ctcFilter=15to25&ctcFilter=25to50&ctcFilter=50to75" target="_blank" class="footer-link">
+        Open 18+ LPA Developer Jobs &rarr;
+      </a>
+    </footer>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
