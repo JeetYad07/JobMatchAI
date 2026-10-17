@@ -14,8 +14,8 @@
   let isRunning = false;
   let abortRequested = false;
 
-  // Candidate Data & Pre-computed answers
-  const CV = {
+  // Dynamic Candidate Profile (Initialized to Jeet's verified profile, customizable from Side Panel)
+  let CV = {
     name: 'Jeet Bahadur',
     email: 'jeetb.yadav11@gmail.com',
     phone: '+91 9478632012',
@@ -37,28 +37,55 @@
     relocate: 'Yes, I am open to relocation. I am currently based in Bengaluru.',
   };
 
-  const QA_BANK = [
-    [/company name|current (company|employer)|organi[sz]ation/i, CV.company],
-    [/notice period|when can you (start|join)|start date|joining|how soon/i, '30'],
-    [/current .{0,15}(ctc|salary|compensation|annual)/i, '0'],
-    [/(expected|desired) .{0,15}(ctc|salary|compensation|pay)|salary expectation/i, '18'],
-    [/years? of (work |professional |total |relevant )?experience|how (long|many years)|total experience|relevant experience/i, CV.yearsInt],
-    [/(react|node|javascript|frontend|backend) experience/i, CV.yearsInt],
-    [/laptop|desktop|computer|pc|system|wifi|internet|broadband/i, 'Yes'],
-    [/shift|rotational|night shift|day shift/i, 'Yes'],
-    [/serving notice|currently serving/i, 'No'],
-    [/immediate joiner|can join immediately/i, 'Yes'],
-    [/highest qualification|highest education|degree/i, 'B.Tech'],
-    [/remote|work from home|wfh/i, 'Yes'],
-    [/reloc|move to|shift to|based out of|work from (our )?office|commute|on-?site/i, 'Yes'],
-    [/e-?mail/i, CV.email],
-    [/where are you .{0,15}(based|located)|current location|city|address/i, 'Bengaluru'],
-    [/visa|sponsorship|work authorization|legally authorized|right to work|citizen/i, 'Yes'],
-    [/\blinkedin\b/i, CV.linkedin],
-    [/\bgithub\b/i, CV.github],
-    [/phone|contact number|mobile/i, CV.phone],
-    [/^name$|your name|full name|candidate name|first name/i, CV.name],
-  ];
+  let QA_BANK = [];
+
+  function buildQABank() {
+    QA_BANK = [
+      [/company name|current (company|employer)|organi[sz]ation/i, CV.company],
+      [/notice period|when can you (start|join)|start date|joining|how soon/i, (CV.noticePeriod || '30').replace(/\D/g, '') || '30'],
+      [/current .{0,15}(ctc|salary|compensation|annual)/i, String(CV.currentCTC || '0')],
+      [/(expected|desired) .{0,15}(ctc|salary|compensation|pay)|salary expectation/i, String(CV.expectedCTC || '18').split('-')[0] || '18'],
+      [/years? of (work |professional |total |relevant )?experience|how (long|many years)|total experience|relevant experience/i, String(CV.yearsInt || '4')],
+      [/(react|node|javascript|frontend|backend) experience/i, String(CV.yearsInt || '4')],
+      [/laptop|desktop|computer|pc|system|wifi|internet|broadband/i, 'Yes'],
+      [/shift|rotational|night shift|day shift/i, 'Yes'],
+      [/serving notice|currently serving/i, 'No'],
+      [/immediate joiner|can join immediately/i, 'Yes'],
+      [/highest qualification|highest education|degree/i, (CV.education && CV.education.includes('B.Tech')) ? 'B.Tech' : 'Graduate'],
+      [/remote|work from home|wfh/i, 'Yes'],
+      [/reloc|move to|shift to|based out of|work from (our )?office|commute|on-?site/i, 'Yes'],
+      [/e-?mail/i, CV.email],
+      [/where are you .{0,15}(based|located)|current location|city|address/i, CV.location.split(',')[0].trim() || 'Bengaluru'],
+      [/visa|sponsorship|work authorization|legally authorized|right to work|citizen/i, 'Yes'],
+      [/\blinkedin\b/i, CV.linkedin],
+      [/\bgithub\b/i, CV.github],
+      [/phone|contact number|mobile/i, CV.phone],
+      [/^name$|your name|full name|candidate name|first name/i, CV.name],
+    ];
+  }
+  buildQABank();
+
+  function updateCandidateProfile(profile) {
+    if (!profile) return;
+    if (profile.name) CV.name = profile.name;
+    if (profile.email) CV.email = profile.email;
+    if (profile.phone) CV.phone = profile.phone;
+    if (profile.location) CV.location = profile.location;
+    if (profile.currentRole) CV.currentRole = profile.currentRole;
+    if (profile.company) CV.company = profile.company;
+    if (profile.education) CV.education = profile.education;
+    if (profile.yearsNumber) {
+      CV.yearsNumber = String(profile.yearsNumber);
+      CV.yearsInt = String(Math.floor(parseFloat(profile.yearsNumber) || 4));
+      CV.yearsOfExperience = `${CV.yearsNumber} years professional experience`;
+    }
+    if (profile.noticePeriod) CV.noticePeriod = profile.noticePeriod;
+    if (profile.currentCTC !== undefined) CV.currentCTC = String(profile.currentCTC);
+    if (profile.expectedCTC !== undefined) CV.expectedCTC = String(profile.expectedCTC);
+    if (profile.github) CV.github = profile.github;
+    if (profile.linkedin) CV.linkedin = profile.linkedin;
+    buildQABank();
+  }
 
   const SELECTORS = {
     jobCards: '.srp-jobtuple-wrapper, article.jobTuple, [data-job-id], .cust-job-tuple, .jobTuple, [class*="jobtuple" i], [class*="srp-tuple" i], [class*="tuple-wrapper" i], div.styles_job-tuple-container__srp',
@@ -77,6 +104,20 @@
   };
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // Anti-bot detection: randomized human delay between applications
+  function getHumanDelay(pacingSpeed = 'stealth') {
+    let min = 8000;
+    let max = 18000;
+    if (pacingSpeed === 'balanced') {
+      min = 5000;
+      max = 10000;
+    } else if (pacingSpeed === 'fast') {
+      min = 3000;
+      max = 6000;
+    }
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
   function log(text, type = 'info') {
     const time = new Date().toLocaleTimeString();
@@ -213,6 +254,7 @@
       try {
         doc.getSelection().selectAllChildren(input);
         doc.execCommand('delete', false, null);
+        await sleep(35 + Math.floor(Math.random() * 45));
         doc.execCommand('insertText', false, String(answer));
       } catch (e) {
         input.innerText = String(answer);
@@ -232,7 +274,8 @@
     Object.getOwnPropertyDescriptor(proto, 'value').set.call(input, '');
     input.value = '';
 
-    await sleep(50);
+    // Human typing micro-jitter between clear and type (40-90ms)
+    await sleep(40 + Math.floor(Math.random() * 50));
 
     // 2. Set new value via React native setter
     Object.getOwnPropertyDescriptor(proto, 'value').set.call(input, String(answer));
@@ -585,6 +628,16 @@
     isRunning = true;
     abortRequested = false;
 
+    // 0. Synchronize candidate profile from config or local storage
+    if (config.candidateProfile) {
+      updateCandidateProfile(config.candidateProfile);
+    } else {
+      try {
+        const { candidateProfile: storedProfile } = await chrome.storage.local.get('candidateProfile');
+        if (storedProfile) updateCandidateProfile(storedProfile);
+      } catch (e) {}
+    }
+
     // 1. Verify we are on a Naukri tab and on a search results page
     const currentUrl = window.location.href;
     const isSearchPage = /(-jobs|\/jobs|\/search|q=)/i.test(currentUrl);
@@ -736,8 +789,10 @@
           }).catch(() => {});
         }
 
-        // Respectful pacing delay between applications
-        await sleep(3500);
+        // Anti-bot detection: randomized human pacing delay between job applications
+        const pacingDelay = getHumanDelay(config.pacingSpeed || 'stealth');
+        log(`⏳ Human pacing delay: waiting ${(pacingDelay / 1000).toFixed(1)}s before next job...`, 'info');
+        await sleep(pacingDelay);
       }
     } finally {
       if (popup && !popup.closed) popup.close();

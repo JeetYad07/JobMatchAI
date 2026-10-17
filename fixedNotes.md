@@ -423,4 +423,31 @@ Clicking **"⚡ Apply Filters to Page"** in the Side Panel either logged a disco
   - This natively applies 100% of the targeting criteria in one atomic load without DOM race conditions.
   - Live feedback is streamed to the Side Panel log confirming the filters applied.
 
+---
+
+## 18. Fix: P0 Dynamic Candidate Profile Customizer & Anti-Detection Pacing
+
+### Issues Identified
+1. **Hardcoded Candidate Credentials**: Candidate profile details (Name, Email, Phone, Company, Experience, Education, CTC, LinkedIn, GitHub) were statically hardcoded in `naukri-content.js`. Modifying candidate information required manual source-code editing.
+2. **Fixed Bot-Like Timing (3.5s)**: Applying to jobs with a constant 3.5s sleep delay creates a distinct synthetic fingerprint susceptible to anti-bot detection and rate-limiting on Naukri.
+
+### What Was Fixed
+1. **Dynamic Candidate Profile Editor Drawer**:
+   - Added an expandable/collapsible drawer in the Side Panel under **Candidate Profile**.
+   - Added individual input controls for Full Name, Email, Phone, Current Role, Company, Experience (Yrs), Education, Location, Notice Period, Current CTC, Expected CTC, LinkedIn, and GitHub.
+   - Provides **"💾 Save Profile"** (persisted in `chrome.storage.local.candidateProfile`) and **"↺ Reset to Jeet's Verified CV"** for instant 1-click restoration.
+   - Live summary card in the Side Panel updates reactively upon editing.
+2. **Dynamic Content Script Profile Binding**:
+   - `naukri-content.js` dynamically pulls candidate details from `config.candidateProfile` or `chrome.storage.local`.
+   - `buildQABank()` compiles regular expressions and answer mappings dynamically, automatically parsing notice period days, expected CTC salary baselines, city names, and education credentials.
+3. **Pacing Speed Selector & Human Jitter Delays**:
+   - Added **Pacing & Human Delay** selector in the Side Panel:
+     - **Stealth Safe (anti-bot)**: Random delay between 8,000ms and 18,000ms (Default).
+     - **Balanced**: Random delay between 5,000ms and 10,000ms.
+     - **Fast**: Random delay between 3,000ms and 6,000ms.
+   - Logs real-time delay: `⏳ Human pacing delay: waiting Xs before next job...`.
+4. **Typing Micro-Jitter in `fillInput`**:
+   - Emulates natural human keystroke intervals with a 40–90ms random micro-sleep between clear and insert events, ensuring React forms recognize keystrokes without synthetic event flags.
+
+
 

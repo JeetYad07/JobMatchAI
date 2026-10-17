@@ -222,24 +222,101 @@
           <span class="slider"></span>
         </label>
       </div>
+      <div class="form-row">
+        <label for="selectPacingSpeed">Pacing & Human Delay</label>
+        <select id="selectPacingSpeed" class="form-select">
+          <option value="stealth" selected>Stealth Safe (8-18s delay, anti-bot)</option>
+          <option value="balanced">Balanced (5-10s delay)</option>
+          <option value="fast">Fast (3-6s delay)</option>
+        </select>
+      </div>
     </section>
 
-    <!-- Candidate Profile Preview -->
+    <!-- Candidate Profile Preview & Customizer -->
     <section class="card profile-card">
       <div class="section-title">
         <span>Candidate Profile</span>
-        <span class="profile-verified">● Verified</span>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button id="btnToggleProfileEdit" class="btn-chip-action" type="button" style="font-size: 10px; padding: 2px 8px;">✏ Edit</button>
+          <span class="profile-verified">● Verified</span>
+        </div>
       </div>
       <div class="profile-details">
         <div class="profile-name" id="profileName">Jeet Bahadur</div>
         <div class="profile-role" id="profileRole">Software Engineer &bull; MSG Global</div>
-        <div class="profile-meta">
+        <div class="profile-meta" id="profileMeta">
           <span>💼 4.3 Yrs Exp</span> &bull; 
           <span>📍 Bengaluru</span> &bull; 
           <span>🎓 B.Tech NITJ</span>
         </div>
       </div>
-    </section>
+
+      <!-- Collapsible Profile Customizer Drawer -->
+      <div id="profileEditorDrawer" class="profile-editor" style="display: none; margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+        <div style="font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 8px;">Edit Candidate Answers</div>
+        
+        <div class="form-row">
+          <label for="inputProfileName">Full Name</label>
+          <input type="text" id="inputProfileName" class="form-input-text" placeholder="Full Name">
+        </div>
+        <div class="form-row">
+          <label for="inputProfileEmail">Email</label>
+          <input type="email" id="inputProfileEmail" class="form-input-text" placeholder="Email">
+        </div>
+        <div class="form-row">
+          <label for="inputProfilePhone">Phone</label>
+          <input type="text" id="inputProfilePhone" class="form-input-text" placeholder="+91...">
+        </div>
+        <div class="form-row">
+          <label for="inputProfileRole">Current Role</label>
+          <input type="text" id="inputProfileRole" class="form-input-text" placeholder="Software Engineer">
+        </div>
+        <div class="form-row">
+          <label for="inputProfileCompany">Company</label>
+          <input type="text" id="inputProfileCompany" class="form-input-text" placeholder="Current Company">
+        </div>
+        <div class="form-row">
+          <label for="inputProfileExp">Experience (Yrs)</label>
+          <input type="text" id="inputProfileExp" class="form-input-text" placeholder="4.3">
+        </div>
+        <div class="form-row">
+          <label for="inputProfileEdu">Education</label>
+          <input type="text" id="inputProfileEdu" class="form-input-text" placeholder="Degree, College">
+        </div>
+        <div class="form-row">
+          <label for="inputProfileLocation">Location</label>
+          <input type="text" id="inputProfileLocation" class="form-input-text" placeholder="City, Country">
+        </div>
+        <div class="form-row">
+          <label for="inputProfileNotice">Notice Period</label>
+          <input type="text" id="inputProfileNotice" class="form-input-text" placeholder="30 days">
+        </div>
+        <div class="form-row">
+          <label for="inputProfileCurrentCTC">Current CTC</label>
+          <input type="text" id="inputProfileCurrentCTC" class="form-input-text" placeholder="0 or Lacs">
+        </div>
+        <div class="form-row">
+          <label for="inputProfileExpectedCTC">Expected CTC</label>
+          <input type="text" id="inputProfileExpectedCTC" class="form-input-text" placeholder="18-25">
+        </div>
+        <div class="form-row">
+          <label for="inputProfileLinkedin">LinkedIn</label>
+          <input type="text" id="inputProfileLinkedin" class="form-input-text" placeholder="LinkedIn URL">
+        </div>
+        <div class="form-row">
+          <label for="inputProfileGithub">GitHub</label>
+          <input type="text" id="inputProfileGithub" class="form-input-text" placeholder="GitHub URL">
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+          <button id="btnSaveProfile" class="btn-primary" style="flex: 1; padding: 7px;" type="button">
+            <span>💾 Save Profile</span>
+          </button>
+          <button id="btnResetProfile" class="btn-secondary" style="flex: 1; padding: 7px;" type="button">
+            <span>↺ Reset to Jeet's CV</span>
+          </button>
+        </div>
+      </div>
 
     <!-- Live Activity Log -->
     <section class="card log-card">

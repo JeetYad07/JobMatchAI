@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const inputMaxTarget = document.getElementById('inputMaxTarget');
   const toggleCriteriaMatch = document.getElementById('toggleCriteriaMatch');
   const toggleSkipUndisclosed = document.getElementById('toggleSkipUndisclosed');
+  const selectPacingSpeed = document.getElementById('selectPacingSpeed');
 
   // DOM Elements - Smart Search Targeting Hub
   const btnAutoFillResume = document.getElementById('btnAutoFillResume');
@@ -38,6 +39,47 @@ document.addEventListener('DOMContentLoaded', async () => {
   const filterEducation = document.getElementById('filterEducation');
   const toggleAutoNavigate = document.getElementById('toggleAutoNavigate');
 
+  // DOM Elements - Candidate Profile Editor
+  const btnToggleProfileEdit = document.getElementById('btnToggleProfileEdit');
+  const profileEditorDrawer = document.getElementById('profileEditorDrawer');
+  const btnSaveProfile = document.getElementById('btnSaveProfile');
+  const btnResetProfile = document.getElementById('btnResetProfile');
+  const profileName = document.getElementById('profileName');
+  const profileRole = document.getElementById('profileRole');
+  const profileMeta = document.getElementById('profileMeta');
+
+  const inputProfileName = document.getElementById('inputProfileName');
+  const inputProfileEmail = document.getElementById('inputProfileEmail');
+  const inputProfilePhone = document.getElementById('inputProfilePhone');
+  const inputProfileRole = document.getElementById('inputProfileRole');
+  const inputProfileCompany = document.getElementById('inputProfileCompany');
+  const inputProfileExp = document.getElementById('inputProfileExp');
+  const inputProfileEdu = document.getElementById('inputProfileEdu');
+  const inputProfileLocation = document.getElementById('inputProfileLocation');
+  const inputProfileNotice = document.getElementById('inputProfileNotice');
+  const inputProfileCurrentCTC = document.getElementById('inputProfileCurrentCTC');
+  const inputProfileExpectedCTC = document.getElementById('inputProfileExpectedCTC');
+  const inputProfileLinkedin = document.getElementById('inputProfileLinkedin');
+  const inputProfileGithub = document.getElementById('inputProfileGithub');
+
+  const DEFAULT_PROFILE = {
+    name: 'Jeet Bahadur',
+    email: 'jeetb.yadav11@gmail.com',
+    phone: '+91 9478632012',
+    location: 'Bengaluru, India',
+    currentRole: 'Software Engineer',
+    company: 'MSG Global Solutions',
+    education: 'B.Tech in Chemical Engineering, NIT Jalandhar (2018-2022)',
+    yearsNumber: '4.3',
+    noticePeriod: '30 days',
+    currentCTC: '0',
+    expectedCTC: '18-25',
+    linkedin: 'https://www.linkedin.com/in/jeet-y-41a073175/',
+    github: 'https://github.com/JeetYad07'
+  };
+
+  let activeProfile = { ...DEFAULT_PROFILE };
+
   let isRunning = false;
   let isToggling = false;
 
@@ -46,6 +88,68 @@ document.addEventListener('DOMContentLoaded', async () => {
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+  }
+
+  // Render candidate profile summary preview card
+  function renderProfilePreview(profile) {
+    if (!profile) return;
+    if (profileName) profileName.textContent = profile.name || DEFAULT_PROFILE.name;
+    if (profileRole) {
+      profileRole.innerHTML = `${escapeHtml(profile.currentRole || DEFAULT_PROFILE.currentRole)} &bull; ${escapeHtml(profile.company || DEFAULT_PROFILE.company)}`;
+    }
+    if (profileMeta) {
+      const eduShort = (profile.education || 'B.Tech NITJ').split(',')[0];
+      profileMeta.innerHTML = `
+        <span>💼 ${escapeHtml(profile.yearsNumber || DEFAULT_PROFILE.yearsNumber)} Yrs Exp</span> &bull; 
+        <span>📍 ${escapeHtml(profile.location || DEFAULT_PROFILE.location)}</span> &bull; 
+        <span>🎓 ${escapeHtml(eduShort)}</span>
+      `;
+    }
+  }
+
+  // Populate drawer inputs with profile data
+  function fillProfileInputs(profile) {
+    if (!profile) return;
+    if (inputProfileName) inputProfileName.value = profile.name || '';
+    if (inputProfileEmail) inputProfileEmail.value = profile.email || '';
+    if (inputProfilePhone) inputProfilePhone.value = profile.phone || '';
+    if (inputProfileRole) inputProfileRole.value = profile.currentRole || '';
+    if (inputProfileCompany) inputProfileCompany.value = profile.company || '';
+    if (inputProfileExp) inputProfileExp.value = profile.yearsNumber || '';
+    if (inputProfileEdu) inputProfileEdu.value = profile.education || '';
+    if (inputProfileLocation) inputProfileLocation.value = profile.location || '';
+    if (inputProfileNotice) inputProfileNotice.value = profile.noticePeriod || '';
+    if (inputProfileCurrentCTC) inputProfileCurrentCTC.value = profile.currentCTC || '';
+    if (inputProfileExpectedCTC) inputProfileExpectedCTC.value = profile.expectedCTC || '';
+    if (inputProfileLinkedin) inputProfileLinkedin.value = profile.linkedin || '';
+    if (inputProfileGithub) inputProfileGithub.value = profile.github || '';
+  }
+
+  // Collect modified candidate profile from inputs
+  function getProfileFromInputs() {
+    return {
+      name: inputProfileName?.value?.trim() || activeProfile.name || DEFAULT_PROFILE.name,
+      email: inputProfileEmail?.value?.trim() || activeProfile.email || DEFAULT_PROFILE.email,
+      phone: inputProfilePhone?.value?.trim() || activeProfile.phone || DEFAULT_PROFILE.phone,
+      currentRole: inputProfileRole?.value?.trim() || activeProfile.currentRole || DEFAULT_PROFILE.currentRole,
+      company: inputProfileCompany?.value?.trim() || activeProfile.company || DEFAULT_PROFILE.company,
+      yearsNumber: inputProfileExp?.value?.trim() || activeProfile.yearsNumber || DEFAULT_PROFILE.yearsNumber,
+      education: inputProfileEdu?.value?.trim() || activeProfile.education || DEFAULT_PROFILE.education,
+      location: inputProfileLocation?.value?.trim() || activeProfile.location || DEFAULT_PROFILE.location,
+      noticePeriod: inputProfileNotice?.value?.trim() || activeProfile.noticePeriod || DEFAULT_PROFILE.noticePeriod,
+      currentCTC: inputProfileCurrentCTC?.value?.trim() || activeProfile.currentCTC || DEFAULT_PROFILE.currentCTC,
+      expectedCTC: inputProfileExpectedCTC?.value?.trim() || activeProfile.expectedCTC || DEFAULT_PROFILE.expectedCTC,
+      linkedin: inputProfileLinkedin?.value?.trim() || activeProfile.linkedin || DEFAULT_PROFILE.linkedin,
+      github: inputProfileGithub?.value?.trim() || activeProfile.github || DEFAULT_PROFILE.github,
+    };
+  }
+
+  // Persist candidate profile to storage and refresh UI
+  async function saveCandidateProfile(profile) {
+    activeProfile = { ...profile };
+    await chrome.storage.local.set({ candidateProfile: activeProfile });
+    renderProfilePreview(activeProfile);
+    fillProfileInputs(activeProfile);
   }
 
   // Append a single log entry and auto-scroll to bottom
@@ -134,7 +238,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       minSalaryLPA: Number(inputMinSalary.value) || 18,
       maxPerRun: Number(inputMaxTarget.value) || 10,
       requireAllCriteria: toggleCriteriaMatch ? toggleCriteriaMatch.checked : true,
-      skipUndisclosed: toggleSkipUndisclosed ? toggleSkipUndisclosed.checked : true
+      skipUndisclosed: toggleSkipUndisclosed ? toggleSkipUndisclosed.checked : true,
+      pacingSpeed: selectPacingSpeed ? selectPacingSpeed.value : 'stealth',
+      candidateProfile: activeProfile
     };
   }
 
@@ -262,7 +368,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       minSalaryLPA: filters.minSalaryLPA,
       maxPerRun: filters.maxPerRun,
       requireAllCriteria: filters.requireAllCriteria,
-      skipUndisclosed: filters.skipUndisclosed
+      skipUndisclosed: filters.skipUndisclosed,
+      pacingSpeed: filters.pacingSpeed,
+      candidateProfile: activeProfile
     });
   }
 
@@ -277,7 +385,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       'dailyCap',
       'todayApplied',
       'logs',
-      'targetingFilters'
+      'targetingFilters',
+      'candidateProfile',
+      'pacingSpeed'
     ]);
 
     updateRunningState(Boolean(data.running));
@@ -286,6 +396,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     inputMaxTarget.value = data.maxPerRun || 10;
     if (toggleCriteriaMatch) toggleCriteriaMatch.checked = data.requireAllCriteria !== false;
     if (toggleSkipUndisclosed) toggleSkipUndisclosed.checked = data.skipUndisclosed !== false;
+    if (selectPacingSpeed && data.pacingSpeed) selectPacingSpeed.value = data.pacingSpeed;
+
+    activeProfile = data.candidateProfile ? { ...DEFAULT_PROFILE, ...data.candidateProfile } : { ...DEFAULT_PROFILE };
+    renderProfilePreview(activeProfile);
+    fillProfileInputs(activeProfile);
+
     renderLogs(data.logs || []);
 
     // Restore saved targeting filters
@@ -301,6 +417,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (tf.companyType && filterCompanyType) filterCompanyType.value = tf.companyType;
       if (tf.education && filterEducation) filterEducation.value = tf.education;
       if (toggleAutoNavigate && tf.autoNavigate !== undefined) toggleAutoNavigate.checked = tf.autoNavigate;
+      if (tf.pacingSpeed && selectPacingSpeed) selectPacingSpeed.value = tf.pacingSpeed;
     }
   }
 
@@ -471,6 +588,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // Profile Drawer Event Listeners
+  if (btnToggleProfileEdit && profileEditorDrawer) {
+    btnToggleProfileEdit.addEventListener('click', () => {
+      const isHidden = profileEditorDrawer.style.display === 'none';
+      profileEditorDrawer.style.display = isHidden ? 'block' : 'none';
+      btnToggleProfileEdit.textContent = isHidden ? '✕ Close' : '✏ Edit';
+    });
+  }
+
+  if (btnSaveProfile) {
+    btnSaveProfile.addEventListener('click', async () => {
+      const updated = getProfileFromInputs();
+      await saveCandidateProfile(updated);
+      appendLogEntry({
+        time: new Date().toLocaleTimeString(),
+        text: `💾 Candidate profile updated: ${updated.name} (${updated.currentRole} @ ${updated.company})`,
+        type: 'success'
+      });
+      if (profileEditorDrawer) profileEditorDrawer.style.display = 'none';
+      if (btnToggleProfileEdit) btnToggleProfileEdit.textContent = '✏ Edit';
+    });
+  }
+
+  if (btnResetProfile) {
+    btnResetProfile.addEventListener('click', async () => {
+      await saveCandidateProfile(DEFAULT_PROFILE);
+      appendLogEntry({
+        time: new Date().toLocaleTimeString(),
+        text: `↺ Profile reset to Jeet Bahadur's verified CV defaults.`,
+        type: 'info'
+      });
+    });
+  }
+
   // Send Email Digest Button
   if (btnSendDigest) {
     btnSendDigest.addEventListener('click', async () => {
@@ -498,7 +649,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   [
     filterRole, filterExperience, filterWorkMode, filterFreshness,
     filterPostedBy, filterDepartment, filterCompanyType, filterEducation,
-    inputMinSalary, inputMaxTarget, toggleCriteriaMatch, toggleSkipUndisclosed, toggleAutoNavigate
+    inputMinSalary, inputMaxTarget, toggleCriteriaMatch, toggleSkipUndisclosed, toggleAutoNavigate,
+    selectPacingSpeed
   ].forEach((el) => {
     if (el) el.addEventListener('change', saveTargetingFilters);
   });

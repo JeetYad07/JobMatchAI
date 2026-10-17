@@ -417,6 +417,28 @@ input:checked + .slider:before {
   color: var(--text-muted);
 }
 
+.profile-editor {
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+.form-input-text {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 8px;
+  outline: none;
+  max-width: 180px;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.form-input-text:focus {
+  border-color: var(--border-focus);
+}
+
 /* Log Stream */
 .btn-text {
   background: none;
